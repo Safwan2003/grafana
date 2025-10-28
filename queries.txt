@@ -1,0 +1,38 @@
+Current trend panel
+
+from(bucket: "energy_lab")
+  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
+  |> filter(fn: (r) => r._measurement == "power_samples")
+  |> filter(fn: (r) => r._field == "irms")
+  |> aggregateWindow(
+    every: v.windowPeriod,
+    fn: mean,
+    createEmpty: false
+  )
+  |> yield(name: "irms_trend")
+
+voltage trend panel
+
+from(bucket: "energy_lab")
+  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
+  |> filter(fn: (r) => r._measurement == "power_samples")
+  |> filter(fn: (r) => r._field == "vrms")
+  |> aggregateWindow(
+    every: v.windowPeriod,
+    fn: mean,
+    createEmpty: false
+  )
+  |> yield(name: "vrms_trend")
+
+Real power trend panel
+
+from(bucket: "energy_lab")
+  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
+  |> filter(fn: (r) => r._measurement == "power_samples")
+  |> filter(fn: (r) => r._field == "p_real")
+  |> aggregateWindow(
+    every: v.windowPeriod,
+    fn: mean,
+    createEmpty: false
+  )
+  |> yield(name: "power_trend")
