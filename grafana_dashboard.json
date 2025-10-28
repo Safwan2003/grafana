@@ -1,0 +1,109 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 1,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Real Power (W) \u2014 now",
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "query": "from(bucket: \"${INFLUX_BUCKET}\")\n  |> range(start: -5m)\n  |> filter(fn: (r) => r._measurement == \"power_samples\")\n  |> filter(fn: (r) => r._field == \"p_real\")\n  |> aggregateWindow(every: 5s, fn: last, createEmpty: false)\n  |> last()\n"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Real Power (W) \u2014 last 15m",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 6,
+        "y": 0
+      },
+      "targets": [
+        {
+          "query": "from(bucket: \"${INFLUX_BUCKET}\")\n  |> range(start: -15m)\n  |> filter(fn: (r) => r._measurement == \"power_samples\")\n  |> filter(fn: (r) => r._field == \"p_real\")\n  |> aggregateWindow(every: 10s, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")\n"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Voltage & Current (RMS)",
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 0,
+        "y": 6
+      },
+      "targets": [
+        {
+          "query": "from(bucket: \"${INFLUX_BUCKET}\")\n  |> range(start: -30m)\n  |> filter(fn: (r) => r._measurement == \"power_samples\")\n  |> filter(fn: (r) => r._field == \"vrms\")\n  |> aggregateWindow(every: 10s, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")\n"
+        },
+        {
+          "query": "from(bucket: \"${INFLUX_BUCKET}\")\n  |> range(start: -30m)\n  |> filter(fn: (r) => r._measurement == \"power_samples\")\n  |> filter(fn: (r) => r._field == \"irms\")\n  |> aggregateWindow(every: 10s, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")\n"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Energy Today (kWh) \u2014 last value",
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 12,
+        "y": 6
+      },
+      "targets": [
+        {
+          "query": "import \"date\"\nfrom(bucket: \"${INFLUX_BUCKET}\")\n  |> range(start: date.truncate(t: now(), unit: 1d))\n  |> filter(fn: (r) => r._measurement == \"power_samples\")\n  |> filter(fn: (r) => r._field == \"energy_kwh\")\n  |> last()\n"
+        }
+      ]
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": [
+    "energy",
+    "demo",
+    "influx",
+    "grafana"
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "INFLUX_BUCKET",
+        "type": "constant",
+        "label": "Influx Bucket",
+        "query": "energy_lab",
+        "current": {
+          "selected": true,
+          "text": "energy_lab",
+          "value": "energy_lab"
+        }
+      }
+    ]
+  },
+  "time": {
+    "from": "now-30m",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Energy Lab \u2014 Simulated SCT013 & ZMPT",
+  "version": 1,
+  "weekStart": ""
+}
